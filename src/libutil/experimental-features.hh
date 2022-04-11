@@ -23,6 +23,7 @@ enum struct ExperimentalFeature
     NoUrlLiterals,
     FetchClosure,
     ReplFlake,
+    ExternalGCDaemon,
 };
 
 /**
