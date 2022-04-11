@@ -402,6 +402,23 @@
                   BINDIR=${placeholder "bin"}/bin
             '';
           };
+          nix-find-roots = prev.stdenv.mkDerivation {
+            name = "nix-find-roots-${version}";
+            inherit version;
+
+            src = "${self}/src/nix-find-roots";
+
+            CXXFLAGS = prev.lib.optionalString prev.stdenv.hostPlatform.isStatic "-static";
+
+            buildPhase = ''
+              $CXX $CXXFLAGS -std=c++17 *.cc **/*.cc -I lib -o nix-find-roots
+            '';
+
+            installPhase = ''
+              mkdir -p $out/bin
+              cp nix-find-roots $out/bin/
+            '';
+          };
         };
 
     in {
@@ -565,6 +582,7 @@
         inherit (nixpkgsFor.${system}) nix;
         default = nix;
       } // (nixpkgs.lib.optionalAttrs (builtins.elem system linux64BitSystems) {
+        inherit (nixpkgsFor.${system}.pkgsStatic) nix-find-roots;
         nix-static = let
           nixpkgs = nixpkgsFor.${system}.pkgsStatic;
         in with commonDeps { pkgs = nixpkgs; isStatic = true; }; nixpkgs.stdenv.mkDerivation {
